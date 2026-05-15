@@ -9,5 +9,7 @@ public record EntradaOutputDTO(
         int asiento,
         EstadoEntrada estado,
         Long funcionId,
-        Long ventaId) {
+        Long ventaId,
+        String peliculaTitulo,
+        java.time.LocalDateTime fechaHora) {
 }

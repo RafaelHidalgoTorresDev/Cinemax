@@ -8,6 +8,7 @@ public record PeliculaOutputDTO(
         int duracion,
         int edadMinima,
         String posterUrl,
+        String trailerUrl,
         String sinopsis,
         String genero,
         double puntuacion,

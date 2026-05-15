@@ -68,7 +68,7 @@ export default function LoginPage() {
         </form>
 
         <p className="auth-footer">
-          ¿No tienes cuenta? <Link to="/register">Regístrate aquí</Link>
+          ¿No tienes cuenta? <Link to="/registro">Regístrate aquí</Link>
         </p>
       </div>
     </div>

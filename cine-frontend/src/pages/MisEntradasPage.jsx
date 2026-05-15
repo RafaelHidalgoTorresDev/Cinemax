@@ -122,20 +122,34 @@ export default function MisEntradasPage() {
                   <div className="tickets-breakdown">
                     <h4 className="breakdown-title">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
-                      Asientos Reservados ({venta.entradas.length})
+                      Entradas en este pedido ({venta.entradas.length})
                     </h4>
-                    <div className="seats-list">
-                      {[...venta.entradas].sort((a, b) => a.fila - b.fila || a.asiento - b.asiento).map((entrada) => (
-                        <div key={entrada.id} className="seat-pill">
-                          <div className="seat-pill-icon">💺</div>
-                          <div className="seat-pill-details">
-                            <span className="seat-loc">Fila {entrada.fila} · Asiento {entrada.asiento}</span>
-                            <span className="seat-code">Código: {entrada.codigo || 'TKT-' + entrada.id}</span>
-                          </div>
-                          <div className={`seat-status-dot ${entrada.estado?.toLowerCase()}`} title={entrada.estado}></div>
+                    
+                    {/* Agrupamos por película */}
+                    {Object.entries(
+                      venta.entradas.reduce((acc, ent) => {
+                        const key = ent.peliculaTitulo || 'Película desconocida';
+                        if (!acc[key]) acc[key] = [];
+                        acc[key].push(ent);
+                        return acc;
+                      }, {})
+                    ).map(([movieTitle, movieEntradas]) => (
+                      <div key={movieTitle} className="movie-group">
+                        <h5 className="movie-group-title">🎬 {movieTitle}</h5>
+                        <div className="seats-list">
+                          {movieEntradas.sort((a, b) => a.fila - b.fila || a.asiento - b.asiento).map((entrada) => (
+                            <div key={entrada.id} className="seat-pill">
+                              <div className="seat-pill-icon">💺</div>
+                              <div className="seat-pill-details">
+                                <span className="seat-loc">Fila {entrada.fila} · Asiento {entrada.asiento}</span>
+                                <span className="seat-code">Código: {entrada.codigo || 'TKT-' + entrada.id}</span>
+                              </div>
+                              <div className={`seat-status-dot ${entrada.estado?.toLowerCase()}`} title={entrada.estado}></div>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

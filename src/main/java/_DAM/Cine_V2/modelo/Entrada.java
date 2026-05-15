@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = { "funcion", "venta" })
+@EqualsAndHashCode(exclude = { "venta" })
 @ToString(exclude = { "funcion", "venta" })
 @EntityListeners(AuditingEntityListener.class) // 🔍 Habilita la auditoría automática
 public class Entrada {

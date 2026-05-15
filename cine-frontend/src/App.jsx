@@ -25,7 +25,7 @@ function App() {
                 {/* Rutas Públicas */}
                 <Route path="/" element={<CarteleraPage />} />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+                <Route path="/registro" element={<RegisterPage />} />
                 <Route path="/pelicula/:id" element={<PeliculaDetailPage />} />
 
                 {/* Rutas Protegidas — USUARIO */}

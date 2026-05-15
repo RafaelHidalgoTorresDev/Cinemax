@@ -13,7 +13,7 @@ export default function AdminDashboard() {
 
   // Formularios
   const [newPelicula, setNewPelicula] = useState({ 
-    titulo: '', duracion: '', edadMinima: '', genero: 'Acción', sinopsis: '', posterUrl: '' 
+    titulo: '', duracion: '', edadMinima: '', genero: 'Acción', sinopsis: '', posterUrl: '', trailerUrl: '' 
   });
   const [newSala, setNewSala] = useState({ nombre: '', capacidad: '' });
   const [newFuncion, setNewFuncion] = useState({ 
@@ -79,9 +79,10 @@ export default function AdminDashboard() {
         genero: newPelicula.genero,
         sinopsis: newPelicula.sinopsis,
         posterUrl: newPelicula.posterUrl,
+        trailerUrl: newPelicula.trailerUrl,
       });
       showMsg('✅ Película creada correctamente');
-      setNewPelicula({ titulo: '', duracion: '', edadMinima: '', genero: 'Acción', sinopsis: '', posterUrl: '' });
+      setNewPelicula({ titulo: '', duracion: '', edadMinima: '', genero: 'Acción', sinopsis: '', posterUrl: '', trailerUrl: '' });
       fetchAll();
     } catch (err) {
       showMsg('❌ Error: ' + (err.response?.data?.message || 'Revisa los datos'), 'error');
@@ -292,6 +293,11 @@ export default function AdminDashboard() {
               <div className="form-group">
                 <label>URL del Póster</label>
                 <input type="url" value={newPelicula.posterUrl} onChange={(e) => setNewPelicula({ ...newPelicula, posterUrl: e.target.value })} required className="glass-input" />
+              </div>
+
+              <div className="form-group">
+                <label>URL del Tráiler (YouTube Embed)</label>
+                <input type="url" value={newPelicula.trailerUrl} onChange={(e) => setNewPelicula({ ...newPelicula, trailerUrl: e.target.value })} className="glass-input" placeholder="Ej: https://www.youtube.com/embed/..." />
               </div>
               
               <div className="form-group">

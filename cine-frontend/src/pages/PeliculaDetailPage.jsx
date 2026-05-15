@@ -13,6 +13,7 @@ export default function PeliculaDetailPage() {
   const [pelicula, setPelicula] = useState(null);
   const [funciones, setFunciones] = useState([]);
   const [selectedFuncion, setSelectedFuncion] = useState(null);
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
   const [occupiedSeats, setOccupiedSeats] = useState([]);
@@ -109,6 +110,16 @@ export default function PeliculaDetailPage() {
             </div>
 
             {pelicula.sinopsis && <p className="detail-sinopsis">{pelicula.sinopsis}</p>}
+            {pelicula.trailerUrl && (
+              <button className="btn-trailer-premium" onClick={() => setIsTrailerOpen(true)}>
+                <span className="play-icon-wrapper">
+                  <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </span>
+                Ver Tráiler
+              </button>
+            )}
           </div>
         </div>
 
@@ -178,6 +189,23 @@ export default function PeliculaDetailPage() {
           </section>
         )}
       </div>
+
+      {isTrailerOpen && pelicula.trailerUrl && (
+        <div className="trailer-modal-overlay" onClick={() => setIsTrailerOpen(false)}>
+          <div className="trailer-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="trailer-close-btn" onClick={() => setIsTrailerOpen(false)}>✕</button>
+            <iframe 
+              width="100%" 
+              height="100%" 
+              src={pelicula.trailerUrl} 
+              title="YouTube video player" 
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

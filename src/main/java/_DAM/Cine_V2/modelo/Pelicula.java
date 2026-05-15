@@ -27,6 +27,9 @@ public class Pelicula {
     @Column(length = 500)
     private String posterUrl;
 
+    @Column(length = 500)
+    private String trailerUrl;
+
     @Column(length = 2000)
     private String sinopsis;
 

@@ -13,6 +13,8 @@ public interface EntradaMapper {
 
     @Mapping(target = "funcionId", source = "funcion.id")
     @Mapping(target = "ventaId", source = "venta.id")
+    @Mapping(target = "peliculaTitulo", source = "funcion.pelicula.titulo")
+    @Mapping(target = "fechaHora", source = "funcion.fechaHora")
     EntradaOutputDTO toDTO(Entrada entrada);
 
     @Mapping(target = "funcion", ignore = true)

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component
+// @Component
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
 

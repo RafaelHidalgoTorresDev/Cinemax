@@ -9,6 +9,7 @@ public record PeliculaInputDTO(
         @Min(value = 1, message = "La duración debe ser mayor a 0") int duracion,
         @Min(value = 0, message = "La edad mínima no puede ser negativa") int edadMinima,
         String posterUrl,
+        String trailerUrl,
         String sinopsis,
         String genero,
         double puntuacion,
