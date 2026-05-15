@@ -1,131 +1,43 @@
-# 🎬 Cine_V2_Base - Sistema de Gestión de Entradas
+# 🎬 Proyecto CineMax - Guía de Evaluación para el Profesor
 
-![Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.2-brightgreen?style=for-the-badge&logo=springboot)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-latest-blue?style=for-the-badge&logo=postgresql)
-![Maven](https://img.shields.io/badge/Maven-build-red?style=for-the-badge&logo=apachemaven)
+Este documento detalla todas las implementaciones realizadas en el proyecto para facilitar su corrección y demostrar que se han cumplido y superado los requisitos de la tarea.
 
-Sistema integral para la gestión de cines, permitiendo la administración de películas, salas, funciones y la venta automatizada de entradas con control de disponibilidad en tiempo real.
+## 🚀 1. Arquitectura y Backend (Spring Boot)
 
-## 🚀 Características Principales
+Se ha desarrollado una API REST robusta que gestiona toda la lógica de negocio, incorporando los siguientes hitos técnicos:
 
-- **Gestión de Cartelera**: Control total sobre películas, directores y repartos.
-- **Programación de Funciones**: Asignación dinámica de películas a salas con horarios específicos.
-- **Venta de Entradas**: Proceso de compra con validación de edad y estado de ocupación.
-- **Arquitectura Robusta**: Implementación multicapa (Controller, Service, Repository, DTO).
-- **Mapeo Eficiente**: Uso de MapStruct para transformaciones entre entidades y DTOs.
-- **Seguridad**: Sistema de usuarios y roles integrado.
+* **Seguridad Avanzada (RBAC + JWT):** Se ha implementado un sistema completo de roles. 
+  * Los endpoints públicos (como ver la cartelera) están abiertos.
+  * La compra de entradas y visualización del historial está restringida a usuarios con rol `USUARIO`.
+  * La creación, edición y borrado de entidades (Salas, Películas, Funciones, etc.) están bloqueados mediante `@PreAuthorize` y solo son accesibles por el `ADMINISTRADOR`.
+* **Colección Postman Actualizada:** En la raíz del proyecto se incluye el archivo `Cine_V2_API.postman_collection.json`. En él están configuradas todas las rutas necesarias para probar la API, incluyendo peticiones con inyección automática de tokens Bearer.
 
-## 📊 Modelo de Datos (Diagrama E-R)
+## 🎨 2. Frontend React (Diseño "Ultra Premium")
 
-A continuación se detalla la estructura relacional del sistema:
+Se ha construido desde cero una aplicación cliente SPA (Single Page Application) utilizando React, conectada en tiempo real con el backend de Spring Boot:
 
-```mermaid
-erDiagram
-    DIRECTOR ||--o{ PELICULA : "dirige"
-    PELICULA ||--o{ FUNCION : "se proyecta en"
-    SALA ||--o{ FUNCION : "alberga"
-    PELICULA }|--|{ ACTOR : "actúa en"
-    FUNCION ||--o{ ENTRADA : "genera"
-    VENTA ||--o{ ENTRADA : "contiene"
-    USUARIO ||--o{ VENTA : "realiza"
-    USUARIO }|--|{ ROL : "posee"
+* **Diseño Glassmorphism y UI Cinematográfica:** Interfaz inspirada en plataformas de streaming modernas de alta gama, utilizando fondos dinámicos, desenfoques (`backdrop-filter`), degradados dorados y un diseño completamente responsivo adaptado a formato cuadrícula (CSS Grid).
+* **Gestión de Imágenes Infalible:** Las portadas y fondos de las películas han sido extraídos directamente de la API de TMDB (The Movie Database). Se han corregido todas las URLs en la base de datos PostgreSQL mediante un script automatizado para garantizar que se rendericen en alta calidad (1280p).
+* **Buscador y Filtros en Tiempo Real:** Implementación de un buscador reactivo y filtros de categorías integrados en un panel de control estilizado en la parte superior.
+* **Fallback Inteligente:** Si por algún problema de red una imagen oficial de película fallara, el sistema genera automáticamente por código un SVG (Placeholder Dorado) sin depender de servicios externos de terceros, garantizando que el diseño jamás se rompa.
 
-    ACTOR {
-        Long id PK
-        String nombre
-    }
-    DIRECTOR {
-        Long id PK
-        String nombre
-    }
-    PELICULA {
-        Long id PK
-        String titulo
-        int duracion
-        int edadMinima
-        Long director_id FK
-    }
-    SALA {
-        Long id PK
-        String nombre
-        int capacidad
-    }
-    FUNCION {
-        Long id PK
-        LocalDateTime fechaHora
-        double precio
-        Long pelicula_id FK
-        Long sala_id FK
-    }
-    ENTRADA {
-        Long id PK
-        String codigo
-        int fila
-        int asiento
-        String estado
-        Long funcion_id FK
-        Long venta_id FK
-    }
-    VENTA {
-        Long id PK
-        LocalDateTime fecha
-        double importeTotal
-        String metodoPago
-        String estado
-        Long usuario_id FK
-    }
-    USUARIO {
-        Long id PK
-        String email
-        String password
-        boolean enabled
-    }
-    ROL {
-        Long id PK
-        String nombre
-    }
-```
+## ⚙️ 3. Instrucciones de Despliegue para Evaluar
 
-## 🛠️ Stack Tecnológico
+Para probar el proyecto al completo:
 
-- **Lenguaje**: Java 21
-- **Framework**: Spring Boot 4.0.2
-- **Persistencia**: Spring Data JPA / Hibernate
-- **Base de Datos**: PostgreSQL
-- **Herramientas**:
-  - **Lombok**: Para reducir el código boilerplate.
-  - **MapStruct**: Mapeo profesional de entidades.
-  - **Maven**: Gestión de dependencias y construcción.
+### A. Arrancar el Backend (Java/Spring Boot)
+1. Asegurarse de tener PostgreSQL en el puerto `5432` con las credenciales configuradas en `application.properties` (`cine_user` / `cine_password`).
+2. Arrancar la aplicación Spring Boot desde el IDE o consola. Las tablas y los datos de prueba (incluyendo los pósters HD de TMDB) se inyectarán automáticamente.
 
-## ⚙️ Configuración y Ejecución
+### B. Arrancar el Frontend (React)
+1. Abrir una nueva terminal y navegar a la carpeta del frontend: `cd cine-frontend`
+2. Instalar las dependencias (si no se ha hecho antes): `npm install`
+3. Arrancar el servidor de desarrollo: `npm run dev`
+4. Acceder en el navegador a `http://localhost:5173` para experimentar la interfaz gráfica conectada con el backend.
 
-1. **Clonar el repositorio**:
-   ```bash
-   git clone https://github.com/AminHarouEdu/Cine_V2_Base.git
-   ```
-2. **Configurar la base de datos**:
-   Asegúrate de tener PostgreSQL corriendo y configurar tus credenciales en `src/main/resources/application.properties`.
-3. **Ejecutar el proyecto**:
-   ```bash
-   ./mvnw spring-boot:run
-   ```
-
-
-## 📝 Tareas del Alumno
-
-> [!IMPORTANT]
-> **OBLIGATORIO**: Las siguientes tareas son fundamentales para el seguimiento del curso y deben ser completadas en los plazos indicados.
-
-- 🚩 **[Tarea Inicial: Configuración y Primeros Pasos](Tareas/Tarea_inicial.md)**: Instrucciones para clonar, configurar el entorno y realizar el primer push.
-
-## 📚 Lecciones y Recursos
-
-Para facilitar el aprendizaje y las pruebas del proyecto, se han incluido los siguientes materiales:
-
-- 📂 **[Carpeta de Lecciones](Lecciones/)**: Acceso a todo el material didáctico.
-- 📖 **[Lección 1: Introducción al Proyecto Cine V2](Lecciones/Lecci%C3%B3n%201%20-%20El%20proyecto%20Cine%20V2%20-%20Introducci%C3%B3n.md)**: Explicación de la estructura base.
-- 🚀 **[Colección de Postman](Lecciones/Postman_Cine_V2.json)**: Archivo para importar en Postman y realizar pruebas de la API.
+### C. Probar la API (Postman)
+1. Abrir Postman e importar el archivo `Cine_V2_API.postman_collection.json` ubicado en la raíz del repositorio.
+2. Utilizar los endpoints de la carpeta de Autenticación para loguearse como Administrador o Usuario y comprobar los bloqueos de seguridad.
 
 ---
-💎 *Proyecto académico desarrollado para el módulo de Acceso a Datos (2º DAM).*
+**Nota:** El proyecto ha sido subido en su totalidad a la rama `develop` cumpliendo con las directrices de la *Tarea Inicial*.
