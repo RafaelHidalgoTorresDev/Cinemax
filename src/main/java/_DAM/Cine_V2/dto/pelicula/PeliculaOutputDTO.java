@@ -7,6 +7,10 @@ public record PeliculaOutputDTO(
         String titulo,
         int duracion,
         int edadMinima,
+        String posterUrl,
+        String sinopsis,
+        String genero,
+        double puntuacion,
         Long directorId,
         Set<Long> actorIds) {
 }

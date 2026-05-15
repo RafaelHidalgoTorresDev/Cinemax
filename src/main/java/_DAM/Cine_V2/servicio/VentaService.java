@@ -8,9 +8,12 @@ import _DAM.Cine_V2.mapper.VentaMapper;
 import _DAM.Cine_V2.modelo.*;
 import _DAM.Cine_V2.repositorio.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,8 +26,6 @@ public class VentaService {
     private final VentaRepository ventaRepository;
     private final UsuarioRepository usuarioRepository;
     private final FuncionRepository funcionRepository;
-    // We don't necessarily need EntradaService if we implement logic here, but
-    // using repository approach
     private final EntradaRepository entradaRepository;
     private final VentaMapper ventaMapper;
     private final EntradaMapper entradaMapper;
@@ -41,8 +42,63 @@ public class VentaService {
                 .orElseThrow(() -> new RuntimeException("Venta no encontrada con ID: " + id));
     }
 
+    /**
+     * 🔐 Busca una venta verificando que el usuario tenga permiso.
+     * ADMIN puede ver cualquier venta. USUARIO solo las suyas.
+     */
+    public VentaOutputDTO findByIdSecured(Long id, Authentication auth) {
+        Venta venta = ventaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Venta no encontrada con ID: " + id));
+
+        // Si es ADMIN, puede ver cualquier venta
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
+            return ventaMapper.toDTO(venta);
+        }
+
+        // Si es USUARIO, solo puede ver las suyas
+        if (venta.getUsuario() != null && venta.getUsuario().getEmail().equals(auth.getName())) {
+            return ventaMapper.toDTO(venta);
+        }
+
+        throw new RuntimeException("No tienes permiso para ver esta venta.");
+    }
+
+    /**
+     * 🔐 Busca las ventas de un usuario por su email.
+     */
+    public List<VentaOutputDTO> findByUserEmail(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        return ventaRepository.findByUsuarioId(usuario.getId()).stream()
+                .map(ventaMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public VentaOutputDTO save(VentaInputDTO ventaDTO) {
+        return saveInternal(ventaDTO);
+    }
+
+    /**
+     * 🔐 Crear una venta de forma segura.
+     * USUARIO solo puede crear ventas para sí mismo.
+     */
+    @Transactional
+    public VentaOutputDTO saveSecured(VentaInputDTO ventaDTO, Authentication auth) {
+        // Si es USUARIO, forzamos que la venta sea para él
+        if (!auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
+            Usuario usuario = usuarioRepository.findByEmail(auth.getName())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            // Creamos un nuevo DTO con el ID del usuario autenticado
+            ventaDTO = new VentaInputDTO(usuario.getId(), ventaDTO.metodoPago(), ventaDTO.entradas());
+        }
+
+        return saveInternal(ventaDTO);
+    }
+
+    private VentaOutputDTO saveInternal(VentaInputDTO ventaDTO) {
         Venta venta = ventaMapper.toEntity(ventaDTO);
 
         if (ventaDTO.usuarioId() != null) {
@@ -51,9 +107,15 @@ public class VentaService {
             venta.setUsuario(usuario);
         }
 
+        // Establecemos la fecha actual
+        venta.setFecha(LocalDateTime.now());
+        venta.setEstado("COMPLETADA");
+
         // If we want to create tickets along with sale:
         if (ventaDTO.entradas() != null) {
             Set<Entrada> entradasEntities = new HashSet<>();
+            double total = 0;
+
             for (EntradaInputDTO eDTO : ventaDTO.entradas()) {
                 // Check function
                 if (eDTO.funcionId() == null)
@@ -61,8 +123,7 @@ public class VentaService {
                 Funcion funcion = funcionRepository.findById(eDTO.funcionId())
                         .orElseThrow(() -> new RuntimeException("Funcion no encontrada " + eDTO.funcionId()));
 
-                // Check availability (Naive check, assuming no concurrency issues for this
-                // exercise)
+                // Check availability
                 boolean occupied = entradaRepository.findByFuncionId(funcion.getId()).stream()
                         .anyMatch(e -> e.getFila() == eDTO.fila() && e.getAsiento() == eDTO.asiento()
                                 && e.getEstado() != EstadoEntrada.CANCELADA);
@@ -77,8 +138,11 @@ public class VentaService {
                 if (entrada.getEstado() == null)
                     entrada.setEstado(EstadoEntrada.VENDIDA);
                 entradasEntities.add(entrada);
+
+                total += funcion.getPrecio();
             }
             venta.setEntradas(entradasEntities);
+            venta.setImporteTotal(total);
         }
 
         Venta saved = ventaRepository.save(venta);
@@ -98,9 +162,6 @@ public class VentaService {
             venta.setUsuario(usuario);
         }
 
-        // Note: We are NOT updating tickets (entradas) here to simplify.
-        // Typical update for Venta might be status or user change.
-
         return ventaMapper.toDTO(ventaRepository.save(venta));
     }
 
@@ -109,5 +170,29 @@ public class VentaService {
             throw new RuntimeException("Venta no encontrada con ID: " + id);
         }
         ventaRepository.deleteById(id);
+    }
+
+    /**
+     * 🔐 Eliminar venta de forma segura.
+     * ADMIN puede borrar cualquiera. USUARIO solo las suyas.
+     */
+    @Transactional
+    public void deleteByIdSecured(Long id, Authentication auth) {
+        Venta venta = ventaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Venta no encontrada con ID: " + id));
+
+        // Si es ADMIN, puede borrar cualquier venta
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"))) {
+            ventaRepository.deleteById(id);
+            return;
+        }
+
+        // Si es USUARIO, solo puede borrar las suyas
+        if (venta.getUsuario() != null && venta.getUsuario().getEmail().equals(auth.getName())) {
+            ventaRepository.deleteById(id);
+            return;
+        }
+
+        throw new RuntimeException("No tienes permiso para cancelar esta venta.");
     }
 }

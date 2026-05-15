@@ -1,0 +1,736 @@
+{
+	"info": {
+		"_postman_id": "cine-v2-jwt-collection",
+		"name": "🎬 Cine V2 API - JWT",
+		"description": "Colección completa de la API del Cine con autenticación JWT.\n\n📌 **Uso:**\n1. Ejecuta el Login para obtener automáticamente el token\n2. Todas las peticiones protegidas lo usarán automáticamente\n3. Usa el Refresh Token cuando el Access Token expire",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "🔓 URLs Públicas (Sin Token)",
+			"item": [
+				{
+					"name": "📝 Registro",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', jsonData.accessToken);",
+									"    pm.collectionVariables.set('refresh_token', jsonData.refreshToken);",
+									"    console.log('✅ Tokens guardados automáticamente desde registro');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"usuario@cine.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "🔑 Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', jsonData.accessToken);",
+									"    pm.collectionVariables.set('refresh_token', jsonData.refreshToken);",
+									"    console.log('✅ Access Token y Refresh Token guardados automáticamente');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"admin@cine.com\",\n    \"password\": \"admin123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "🏓 Ping (Test Público)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/test/ping",
+							"host": ["{{base_url}}"],
+							"path": ["api", "test", "ping"]
+						}
+					}
+				},
+				{
+					"name": "🎬 Ver Cartelera (Públicas)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/peliculas",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "peliculas"]
+						}
+					}
+				},
+				{
+					"name": "🕐 Ver Funciones/Horarios (Públicas)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/funciones",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "funciones"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🔄 Token Refresh",
+			"item": [
+				{
+					"name": "🔄 Renovar Access Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', jsonData.accessToken);",
+									"    console.log('✅ Access Token renovado automáticamente');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/refresh",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "refresh"]
+						}
+					}
+				},
+				{
+					"name": "🚪 Logout",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "logout"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🎬 Películas",
+			"item": [
+				{
+					"name": "Listar Películas",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/peliculas",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "peliculas"]
+						}
+					}
+				},
+				{
+					"name": "Ver Película por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/peliculas/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "peliculas", "1"]
+						}
+					}
+				},
+				{
+					"name": "Crear Película (ADMIN)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titulo\": \"Interstellar\",\n    \"duracion\": 169,\n    \"edadMinima\": 12,\n    \"directorId\": 1,\n    \"actorIds\": [1, 2]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/peliculas",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "peliculas"]
+						}
+					}
+				},
+				{
+					"name": "Actualizar Película (ADMIN)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titulo\": \"Interstellar - Director's Cut\",\n    \"duracion\": 180,\n    \"edadMinima\": 12\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/peliculas/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "peliculas", "1"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar Película (ADMIN)",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{base_url}}/api/v1/peliculas/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "peliculas", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🕐 Funciones (Sesiones)",
+			"item": [
+				{
+					"name": "Listar Funciones",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/funciones",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "funciones"]
+						}
+					}
+				},
+				{
+					"name": "Ver Función por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/funciones/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "funciones", "1"]
+						}
+					}
+				},
+				{
+					"name": "Crear Función (ADMIN)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fechaHora\": \"2026-06-01T20:00:00\",\n    \"precio\": 9.50,\n    \"peliculaId\": 1,\n    \"salaId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/funciones",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "funciones"]
+						}
+					}
+				},
+				{
+					"name": "Actualizar Función (ADMIN)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fechaHora\": \"2026-06-01T22:00:00\",\n    \"precio\": 12.00,\n    \"peliculaId\": 1,\n    \"salaId\": 1\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/funciones/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "funciones", "1"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar Función (ADMIN)",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{base_url}}/api/v1/funciones/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "funciones", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🏢 Salas (ADMIN)",
+			"item": [
+				{
+					"name": "Listar Salas",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/salas",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "salas"]
+						}
+					}
+				},
+				{
+					"name": "Ver Sala por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/salas/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "salas", "1"]
+						}
+					}
+				},
+				{
+					"name": "Crear Sala",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Sala IMAX\",\n    \"capacidad\": 200\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/salas",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "salas"]
+						}
+					}
+				},
+				{
+					"name": "Actualizar Sala",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Sala IMAX Premium\",\n    \"capacidad\": 250\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/salas/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "salas", "1"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar Sala",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{base_url}}/api/v1/salas/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "salas", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🛒 Ventas",
+			"item": [
+				{
+					"name": "Listar Todas (ADMIN)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/ventas",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "ventas"]
+						}
+					}
+				},
+				{
+					"name": "Ver Mis Ventas",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/ventas/mis-ventas",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "ventas", "mis-ventas"]
+						}
+					}
+				},
+				{
+					"name": "Ver Venta por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/ventas/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "ventas", "1"]
+						}
+					}
+				},
+				{
+					"name": "Crear Venta (Comprar Entradas)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"metodoPago\": \"TARJETA\",\n    \"entradas\": [\n        {\n            \"funcionId\": 1,\n            \"fila\": 5,\n            \"asiento\": 10\n        },\n        {\n            \"funcionId\": 1,\n            \"fila\": 5,\n            \"asiento\": 11\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/ventas",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "ventas"]
+						}
+					}
+				},
+				{
+					"name": "Cancelar Venta",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{base_url}}/api/v1/ventas/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "ventas", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🎫 Entradas (ADMIN)",
+			"item": [
+				{
+					"name": "Listar Entradas",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/entradas",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "entradas"]
+						}
+					}
+				},
+				{
+					"name": "Ver Entrada por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/entradas/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "entradas", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "👤 Usuarios",
+			"item": [
+				{
+					"name": "Mi Perfil (/me)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/usuarios/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "usuarios", "me"]
+						}
+					}
+				},
+				{
+					"name": "Listar Usuarios (ADMIN)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/usuarios",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "usuarios"]
+						}
+					}
+				},
+				{
+					"name": "Ver Usuario por ID (ADMIN)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/usuarios/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "usuarios", "1"]
+						}
+					}
+				},
+				{
+					"name": "Crear Usuario (ADMIN)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"nuevo@cine.com\",\n    \"password\": \"password123\",\n    \"roles\": [\"USUARIO\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/usuarios",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "usuarios"]
+						}
+					}
+				},
+				{
+					"name": "Eliminar Usuario (ADMIN)",
+					"request": {
+						"method": "DELETE",
+						"url": {
+							"raw": "{{base_url}}/api/v1/usuarios/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "usuarios", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🎭 Actores (ADMIN)",
+			"item": [
+				{
+					"name": "Listar Actores",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/actores",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "actores"]
+						}
+					}
+				},
+				{
+					"name": "Ver Actor por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/actores/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "actores", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🎬 Directores (ADMIN)",
+			"item": [
+				{
+					"name": "Listar Directores",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/directores",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "directores"]
+						}
+					}
+				},
+				{
+					"name": "Ver Director por ID",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/directores/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "directores", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🔐 Roles (ADMIN)",
+			"item": [
+				{
+					"name": "Listar Roles",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/v1/roles",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "roles"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "🧪 Pruebas de Seguridad",
+			"item": [
+				{
+					"name": "Test Admin (ADMIN)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/test/admin",
+							"host": ["{{base_url}}"],
+							"path": ["api", "test", "admin"]
+						}
+					}
+				},
+				{
+					"name": "Test Usuario (USUARIO)",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/test/user",
+							"host": ["{{base_url}}"],
+							"path": ["api", "test", "user"]
+						}
+					}
+				}
+			]
+		}
+	]
+}

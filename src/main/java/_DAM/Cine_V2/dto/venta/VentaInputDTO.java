@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 
 public record VentaInputDTO(
-        @NotNull(message = "El usuario es obligatorio") Long usuarioId,
+        Long usuarioId,
         @NotBlank(message = "El método de pago es obligatorio") String metodoPago,
         Set<EntradaInputDTO> entradas) {
 }

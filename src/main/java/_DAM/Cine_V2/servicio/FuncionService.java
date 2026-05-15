@@ -23,6 +23,7 @@ public class FuncionService {
     private final FuncionRepository funcionRepository;
     private final PeliculaRepository peliculaRepository;
     private final SalaRepository salaRepository;
+    private final _DAM.Cine_V2.repositorio.EntradaRepository entradaRepository;
     private final FuncionMapper funcionMapper;
 
     @Transactional(readOnly = true)
@@ -89,5 +90,16 @@ public class FuncionService {
             throw new RuntimeException("Funcion no encontrada con ID: " + id);
         }
         funcionRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<java.util.Map<String, Integer>> getAsientosOcupados(Long id) {
+        if (!funcionRepository.existsById(id)) {
+            throw new RuntimeException("Funcion no encontrada con ID: " + id);
+        }
+        return entradaRepository.findByFuncionId(id).stream()
+                .filter(e -> e.getEstado() != _DAM.Cine_V2.modelo.EstadoEntrada.CANCELADA)
+                .map(e -> java.util.Map.of("fila", e.getFila(), "asiento", e.getAsiento()))
+                .collect(Collectors.toList());
     }
 }

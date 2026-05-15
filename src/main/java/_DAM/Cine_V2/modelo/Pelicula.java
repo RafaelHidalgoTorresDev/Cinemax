@@ -23,6 +23,16 @@ public class Pelicula {
     private int duracion;
     private int edadMinima;
 
+    // 🆕 Campos nuevos para enriquecer la cartelera
+    @Column(length = 500)
+    private String posterUrl;
+
+    @Column(length = 2000)
+    private String sinopsis;
+
+    private String genero;
+    private double puntuacion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "director_id")
     private Director director;
